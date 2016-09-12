@@ -53,6 +53,32 @@ namespace CubePuzzleSolve
 			return this.rotations;
 		}
 
+		public Cube AddToEmptyCube(int size)
+		{
+			if (size < this.X || size < this.Y || size < this.Z)
+			{
+				return null;
+			}
+			
+			var cube = new Cube(size);
+
+			for (var i = 0; i < this.Z; i++)
+			{
+				for (var j = 0; j < this.Y; j++)
+				{
+					for (var k = 0; k < this.X; k++)
+					{
+						if (this.cells[i, j, k] != 0)
+						{
+							cube.Cells[i, j, k] = this.Name;
+						}
+					}
+				}
+			}
+
+			return cube;
+		}
+
 		private static List<Figure> CalculateRotations(Figure original)
 		{
 			var allRotations = new List<Figure>();

@@ -6,13 +6,16 @@ namespace CubePuzzleSolve
 	{
 		public static void Main (string[] args)
 		{
-			var testFigure = PuzzleConfig.Figure8;
-			var yRotations = testFigure.GetRotations();
+			var testFigure = PuzzleConfig.Figure1;
 
-			foreach (var rotation in yRotations)
+			var cube1 = testFigure.AddToEmptyCube(4);
+			if (cube1 != null)
 			{
-				Console.WriteLine(rotation);
-				Console.WriteLine("------");
+				Console.WriteLine(cube1);
+			}
+			else 
+			{
+				Console.WriteLine("Can't create the cube.");
 			}
 		}
 	}
