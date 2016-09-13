@@ -38,6 +38,7 @@
     <Compile Include="Figure.cs" />
     <Compile Include="PuzzleConfig.cs" />
     <Compile Include="Cube.cs" />
+    <Compile Include="CellPosition.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

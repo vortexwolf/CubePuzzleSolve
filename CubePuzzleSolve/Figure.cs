@@ -43,6 +43,11 @@ namespace CubePuzzleSolve
 			private set;
 		}
 
+		/// <summary>
+		/// Returns 24 possible rotations. 
+		/// The number of rotations can be less if there are duplicates.
+		/// </summary>
+		/// <returns>The list of possible figure rotations.</returns>
 		public List<Figure> GetRotations()
 		{
 			if (this.rotations == null)
@@ -53,14 +58,56 @@ namespace CubePuzzleSolve
 			return this.rotations;
 		}
 
+		/// <summary>
+		/// Adds this figure to an empty cube.
+		/// </summary>
+		/// <returns>The cube with this figure inside.</returns>
 		public Cube AddToEmptyCube(int size)
 		{
-			if (size < this.X || size < this.Y || size < this.Z)
+			return TryToFitExactlyIntoCube(new Cube(size), this.GetFirstCellPosition());
+		}
+
+		/// <summary>
+		/// Tries to put the figure into every empty cell of the cube.
+		/// </summary>
+		/// <returns>The list of possible cubes.</returns>
+		public List<Cube> GetPossibleNewCubes(Cube originalCube)
+		{
+			var possibleCubes = new List<Cube>();
+
+			for (var i = 0; i < originalCube.Size; i++)
 			{
-				return null;
+				for (var j = 0; j < originalCube.Size; j++)
+				{
+					for (var k = 0; k < originalCube.Size; k++)
+					{
+						if (originalCube.Cells[i, j, k] == null)
+						{
+							var cube = this.TryToFitExactlyIntoCube(originalCube, new CellPosition(i, j, k));
+							if (cube != null)
+							{
+								possibleCubes.Add(cube);
+							}
+						}
+					}
+				}
 			}
-			
-			var cube = new Cube(size);
+
+			return possibleCubes;
+		}
+
+		/// <summary>
+		/// Tries to put the figure exactly into the specified cell.
+		/// </summary>
+		/// <returns>New cube or null if the figure doesn't fit.</returns>
+		public Cube TryToFitExactlyIntoCube(Cube originalCube, CellPosition emptyCubeCell)
+		{
+			var cube = originalCube.Clone();
+
+			var firstFigureCell = this.GetFirstCellPosition();
+			var adjX = emptyCubeCell.X - firstFigureCell.X;
+			var adjY = emptyCubeCell.Y - firstFigureCell.Y;
+			var adjZ = emptyCubeCell.Z - firstFigureCell.Z;
 
 			for (var i = 0; i < this.Z; i++)
 			{
@@ -70,13 +117,50 @@ namespace CubePuzzleSolve
 					{
 						if (this.cells[i, j, k] != 0)
 						{
-							cube.Cells[i, j, k] = this.Name;
+							// the figure will be outside of the cube
+							if (!cube.IsInRange(i + adjZ, j + adjY, k + adjX))
+							{
+								return null;
+							}
+
+							// the figure will overlap existing figures
+							if (cube.Cells[i + adjZ, j + adjY, k + adjX] != null)
+							{
+								return null;
+							}
+
+							cube.Cells[i + adjZ, j + adjY, k + adjX] = this.Name;
 						}
 					}
 				}
 			}
 
+			cube.Figures.Add(this);
+
 			return cube;
+		}
+
+		/// <summary>
+		/// Gets the coordinates of the first non-empty cell.
+		/// </summary>
+		/// <returns>The first non-empty cell.</returns>
+		public CellPosition GetFirstCellPosition()
+		{
+			for (var i = 0; i < this.Z; i++)
+			{
+				for (var j = 0; j < this.Y; j++)
+				{
+					for (var k = 0; k < this.X; k++)
+					{
+						if (this.cells[i, j, k] != 0)
+						{
+							return new CellPosition(i, j, k);
+						}
+					}
+				}
+			}
+
+			return null;
 		}
 
 		private static List<Figure> CalculateRotations(Figure original)
